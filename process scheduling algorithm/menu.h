@@ -10,17 +10,19 @@ int menu_select()
 		std::cout << "\t\t©¦     Operating-System-Algorithm-Simulation     ©¦\n";
 		std::cout << "\t\t¨t¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ö¡õ¡ö¡õ¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¨s\n";
 		std::cout << "\t\t   ©°¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª©´\n";
-		std::cout << "\t\t   ©¦         1. First Come First Served     ©¦\n";
+		std::cout << "\t\t   ©¦       1. First Come First Served       ©¦\n";
 		std::cout << "\t\t   ©¦                                        ©¦\n";
-		std::cout << "\t\t   ©¦         2. Short Job First             ©¦\n";
+		std::cout << "\t\t   ©¦       2. Short Job First               ©¦\n";
 		std::cout << "\t\t   ©¦                                        ©¦\n";
-		std::cout << "\t\t   ©¦         3. Round Robin                 ©¦\n";
+		std::cout << "\t\t   ©¦       3. Round Robin                   ©¦\n";
 		std::cout << "\t\t   ©¦                                        ©¦\n";
-		std::cout << "\t\t   ©¦         0. Exit                        ©¦\n";
+		std::cout << "\t\t   ©¦       4. Priority Scheduling Algorithm ©¦\n";
+		std::cout << "\t\t   ©¦                                        ©¦\n";
+		std::cout << "\t\t   ©¦       0. Exit                          ©¦\n";
 		std::cout << "\t\t   ©¸¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª©¼\n";
-		std::cout << "\t\tPlease choose(0-3):";
+		std::cout << "\t\tPlease choose(0-4):";
 		std::cin >> i;
-	} while (i < 0 || i>3);
+	} while (i < 0 || i>4);
 
 	return i;
 }
@@ -47,6 +49,10 @@ void OSAlgorithmSimulation()
 			GetPcbs(pcbs);
 			GetRoundTime(roundtime);
 			RR(pcbs, roundtime);
+			break;
+		case 4:
+			GetPcbs(pcbs, 1);
+			PSA(pcbs);
 			break;
 		case 0:
 			std::cout << "\t\tsystem exit" << std::endl;

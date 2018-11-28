@@ -14,8 +14,11 @@ public:
 	size_t _time_need;
 	size_t _time_begin;
 	size_t _time_finish;
+	size_t _weight;
+	size_t _time_T;
+	double _time_T_Weight;
 
-	pcb(std::string name, size_t time_come, size_t time_need)
+	pcb(std::string name, size_t time_come, size_t time_need,size_t weight = 0)
 	{
 		_name = name;
 		_time_come = time_come;
@@ -23,23 +26,37 @@ public:
 		_time_begin = INT_MAX;
 		_time_need = time_need;
 		_time_finish = INT_MAX;
+		_weight = weight;
 	}
 
-	void print()
+	void setweight(size_t weight)
 	{
-		std::cout << "进程名：" << _name << "  " << "到达时间：" << _time_come << "所需服务时间：" << _time_need;
+		_weight = weight;
 	}
 
-	
+	void print(int flag = 0)
+	{
+		std::cout << "进程：" << _name << " 到达：" << _time_come << " 所需服务：" << _time_need;
+		if (flag == 1)
+			std::cout << " 优先权：" << _weight;
+	}
+
+	void SetTTimeAndTTimeWithW()
+	{
+		_time_T = _time_finish - _time_begin;
+		_time_T_Weight = (double)_time_T / (double)_time_need;
+	}
 	friend bool CmpByFcfs(pcb& a, pcb& b);
 	friend bool CmpBySjf(pcb& a, pcb& b);
+	friend bool CmpByPsa(pcb& a, pcb& b);
+
 };
 
-void PintfPcbs(std::vector<pcb>& pcbs)
+void PintfPcbs(std::vector<pcb>& pcbs,int flag = 0)
 {
 	for (size_t i = 0; i < pcbs.size(); ++i)
 	{
-		pcbs[i].print();
+		pcbs[i].print(flag);
 		std::cout << std::endl;
 	}
 	std::cout << std::endl;
@@ -55,13 +72,20 @@ bool CmpBySjf(pcb& a, pcb& b)
 	return a._time_need < b._time_need;
 }
 
-void GetPcbs(std::vector<pcb>& pcbs)
+bool CmpByPsa(pcb& a, pcb& b)
+{
+	return a._weight > b._weight;
+}
+
+void GetPcbs(std::vector<pcb>& pcbs,int flag = 0)
 {
 	system("cls");
 	size_t num;
 	std::string name;
-	std::size_t time_come;
-	std::size_t time_need;
+	size_t time_come;
+	size_t time_need;
+	size_t weight;
+	
 
 	std::cout << "请输入模拟算法中进程数量：";
 	std::cin >> num;
@@ -75,6 +99,12 @@ void GetPcbs(std::vector<pcb>& pcbs)
 		std::cout << "请输入服务所需时间：";
 		std::cin >> time_need;
 		pcbs.push_back(pcb(name, time_come, time_need));
+		if (flag == 1)
+		{
+			std::cout << "请输入进程优先级：";
+			std::cin >> weight;
+			pcbs.back().setweight(weight);
+		}
 	}
 	system("cls");
 }
@@ -119,7 +149,7 @@ void FCFS(std::vector<pcb>& pcbs)
 	system("pause");
 }
 
-void SortPcbsBySjf(std::vector<pcb>& pcbs,std::size_t time)
+void SortPcbsBySjf(std::vector<pcb>& pcbs)
 {
 	if (pcbs.size() == 0)
 		return;
@@ -149,7 +179,7 @@ void SJF(std::vector<pcb>& pcbs)
 			pcbQ.push_back(pcbs[index]);
 			index++;
 		}
-		SortPcbsBySjf(pcbQ, nowtime);
+		SortPcbsBySjf(pcbQ);
 
 		if (pcbQ[0]._time_come > nowtime)
 			nowtime = pcbQ[0]._time_come;
@@ -163,9 +193,11 @@ void SJF(std::vector<pcb>& pcbs)
 		nowpcb._time_begin = nowtime;
 		nowpcb._time_finish = nowpcb._time_need + nowtime;
 		nowtime += nowpcb._time_need;
+		nowpcb.SetTTimeAndTTimeWithW();
 		nowpcb.print();
-		std::cout << "  服务开始时间" << nowpcb._time_begin << " 完成时间：" << nowpcb._time_finish << std::endl;
-		SortPcbsBySjf(pcbQ, nowtime);
+		std::cout << " 开始：" << nowpcb._time_begin << " 完成：" << nowpcb._time_finish <<
+			" 周转："<<nowpcb._time_T<<" 带权周转："<<nowpcb._time_T_Weight<< std::endl;
+		SortPcbsBySjf(pcbQ);
 	}
 	system("pause");
 }
@@ -207,14 +239,75 @@ void RR(std::vector<pcb>& pcbs, std::size_t times)
 		{
 			nowpcb._time_finish = nowpcb._time_nowneed + nowtime;
 			nowtime += nowpcb._time_nowneed;
+			nowpcb.SetTTimeAndTTimeWithW();
 			nowpcb.print();
-			std::cout << " 完成时间：" << nowpcb._time_finish << std::endl;
+			std::cout << " 开始：" << nowpcb._time_begin << " 完成：" << nowpcb._time_finish <<
+				" 周转：" << nowpcb._time_T << " 带权周转：" << nowpcb._time_T_Weight << std::endl;
 		}
 		else
 		{
 			nowpcb._time_nowneed -= times;
 			nowtime += times;
 			pcbQ.push(nowpcb);
+		}
+	}
+	system("pause");
+}
+
+void SortPcbsByPSA(std::vector<pcb>& pcbs)
+{
+	if (pcbs.size() == 0)
+		return;
+	sort(pcbs.begin(), pcbs.end(), CmpByPsa);
+}
+
+void PSA(std::vector<pcb>& pcbs)
+{
+	PintfPcbs(pcbs, 1);
+	size_t nowtime = 0;
+	size_t index = 0;
+	std::vector<pcb> pcbQ;
+	SortPcbsByFcfs(pcbs);
+
+	while (1)
+	{
+		if (pcbQ.empty() && index >= pcbs.size())
+			break;
+		if (pcbQ.empty())
+		{
+			pcbQ.push_back(pcbs[index]);
+			index++;
+		}
+
+		while (index < pcbs.size() && pcbs[index]._time_come <= nowtime)
+		{
+			pcbQ.push_back(pcbs[index]);
+			index++;
+		}
+		SortPcbsByPSA(pcbQ);
+
+		if (pcbQ.front()._time_come > nowtime)
+			nowtime = pcbQ.front()._time_come;
+
+		if (pcbQ.front()._time_begin == INT_MAX)
+			pcbQ.front()._time_begin = nowtime;
+
+		if (pcbQ.front()._time_nowneed == 1)
+		{
+			pcbQ.front()._time_nowneed = 0;
+			pcbQ.front()._time_finish = nowtime + 1;
+			nowtime++;
+			pcbQ.front().SetTTimeAndTTimeWithW();
+			pcbQ.front().print(1);
+			std::cout << " 开始：" << pcbQ.front()._time_begin << " 完成：" << pcbQ.front()._time_finish <<
+				" 周转：" << pcbQ.front()._time_T << " 带权周转：" << pcbQ.front()._time_T_Weight << std::endl;
+			pcbQ.front() = pcbQ.back();
+			pcbQ.pop_back();
+		}
+		else
+		{
+			pcbQ.front()._time_nowneed --;
+			nowtime++;
 		}
 	}
 	system("pause");
