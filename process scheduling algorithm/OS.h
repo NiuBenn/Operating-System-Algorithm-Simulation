@@ -32,6 +32,7 @@ public:
 
 	
 	friend bool CmpByFcfs(pcb& a, pcb& b);
+	friend bool CmpBySjf(pcb& a, pcb& b);
 };
 
 void PintfPcbs(std::vector<pcb>& pcbs)
@@ -47,6 +48,11 @@ void PintfPcbs(std::vector<pcb>& pcbs)
 bool CmpByFcfs(pcb& a, pcb& b)
 {
 	return a._time_come < b._time_come;
+}
+
+bool CmpBySjf(pcb& a, pcb& b)
+{
+	return a._time_need < b._time_need;
 }
 
 void GetPcbs(std::vector<pcb>& pcbs)
@@ -115,22 +121,9 @@ void FCFS(std::vector<pcb>& pcbs)
 
 void SortPcbsBySjf(std::vector<pcb>& pcbs,std::size_t time)
 {
-	SortPcbsByFcfs(pcbs);
 	if (pcbs.size() == 0)
 		return;
-	for (size_t i = 0; i < pcbs.size() -1; ++i)
-	{
-		for (size_t j = 0; j < pcbs.size() - 1 - i; ++j)
-		{
-			if (pcbs[i+1]._time_come <= time
-				&& pcbs[i]._time_need > pcbs[i + 1]._time_need)
-			{
-				pcb tmp(pcbs[i]);
-				pcbs[i] = pcbs[i + 1];
-				pcbs[i + 1] = tmp;
-			}
-		}
-	}
+	sort(pcbs.begin(), pcbs.end(), CmpBySjf);
 }
 
 void SJF(std::vector<pcb>& pcbs)
@@ -138,7 +131,7 @@ void SJF(std::vector<pcb>& pcbs)
 	PintfPcbs(pcbs);
 	size_t nowtime = 0;
 	std::vector<pcb> pcbQ;
-	SortPcbsBySjf(pcbs, nowtime);
+	SortPcbsByFcfs(pcbs);
 
 	size_t index = 0;
 	while (1)
@@ -150,15 +143,16 @@ void SJF(std::vector<pcb>& pcbs)
 			pcbQ.push_back(pcbs[index]);
 			index++;
 		}
-		if (pcbQ[0]._time_come > nowtime)
-			nowtime = pcbQ[0]._time_come;
 
-		while (index < pcbs.size() && pcbs[index]._time_come == nowtime)
+		while (index < pcbs.size() && pcbs[index]._time_come <= nowtime)
 		{
 			pcbQ.push_back(pcbs[index]);
 			index++;
 		}
 		SortPcbsBySjf(pcbQ, nowtime);
+
+		if (pcbQ[0]._time_come > nowtime)
+			nowtime = pcbQ[0]._time_come;
 
 		//取队头pcb，出队
 		pcb nowpcb(pcbQ[0]);

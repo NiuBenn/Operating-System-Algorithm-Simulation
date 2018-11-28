@@ -20,7 +20,7 @@ int menu_select()
 		std::cout << "\t\t   └————————————————————┘\n";
 		std::cout << "\t\tPlease choose(0-3):";
 		std::cin >> i;
-	} while (i < 0 || i>3);//确保输入合法;
+	} while (i < 0 || i>3);
 
 	return i;
 }
@@ -29,6 +29,7 @@ void OSAlgorithmSimulation()
 {
 	std::vector<pcb> pcbs;
 	size_t roundtime;
+
 	while (1)
 	{
 		pcbs.clear();
