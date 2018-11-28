@@ -49,8 +49,9 @@ bool CmpByFcfs(pcb& a, pcb& b)
 	return a._time_come < b._time_come;
 }
 
-void getpcbs(std::vector<pcb>& pcbs)
+void GetPcbs(std::vector<pcb>& pcbs)
 {
+	system("cls");
 	size_t num;
 	std::string name;
 	std::size_t time_come;
@@ -70,6 +71,13 @@ void getpcbs(std::vector<pcb>& pcbs)
 		pcbs.push_back(pcb(name, time_come, time_need));
 	}
 	system("cls");
+}
+
+void GetRoundTime(size_t& times)
+{
+	system("cls");
+	std::cout << "请输入时间片大小：";
+	std::cin >> times;
 }
 
 void SortPcbsByFcfs(std::vector<pcb>& pcbs)
@@ -102,6 +110,7 @@ void FCFS(std::vector<pcb>& pcbs)
 		pcbs[i].print();
 		std::cout << " 完成时间："<<pcbs[i]._time_finish << std::endl;
 	}
+	system("pause");
 }
 
 void SortPcbsBySjf(std::vector<pcb>& pcbs,std::size_t time)
@@ -129,28 +138,27 @@ void SJF(std::vector<pcb>& pcbs)
 	PintfPcbs(pcbs);
 	size_t nowtime = 0;
 	std::vector<pcb> pcbQ;
-	SortPcbsBySjf(pcbs,nowtime);
+	SortPcbsBySjf(pcbs, nowtime);
 
-	pcbQ.push_back(pcbs[0]);
-	for (size_t i = 1; i < pcbs.size();)
+	size_t index = 0;
+	while (1)
 	{
-		if (pcbQ.size() == 0)
+		if (pcbQ.empty() && index >= pcbs.size())
+			break;
+		if (pcbQ.empty())
 		{
-			pcbQ.push_back(pcbs[i]);
-			i++;
+			pcbQ.push_back(pcbs[index]);
+			index++;
 		}
 		if (pcbQ[0]._time_come > nowtime)
 			nowtime = pcbQ[0]._time_come;
-		
-		if (i<pcbs.size()&&pcbs[i]._time_come <= nowtime)
+
+		while (index < pcbs.size() && pcbs[index]._time_come == nowtime)
 		{
-			while (i < pcbs.size() && pcbs[i]._time_come <= nowtime)
-			{
-				pcbQ.push_back(pcbs[i]);
-				i++;
-			}
-			SortPcbsBySjf(pcbQ,nowtime);
+			pcbQ.push_back(pcbs[index]);
+			index++;
 		}
+		SortPcbsBySjf(pcbQ, nowtime);
 
 		//取队头pcb，出队
 		pcb nowpcb(pcbQ[0]);
@@ -163,21 +171,9 @@ void SJF(std::vector<pcb>& pcbs)
 		nowtime += nowpcb._time_need;
 		nowpcb.print();
 		std::cout << "  服务开始时间" << nowpcb._time_begin << " 完成时间：" << nowpcb._time_finish << std::endl;
-		SortPcbsBySjf(pcbQ,nowtime);
+		SortPcbsBySjf(pcbQ, nowtime);
 	}
-	while (pcbQ.size())
-	{
-		pcb nowpcb(pcbQ[0]);
-		pcbQ[0] = pcbQ[pcbQ.size() - 1];
-		pcbQ.pop_back();
-
-		//计算刚才取出的pcb的finish时间
-		nowpcb._time_begin = nowtime;
-		nowpcb._time_finish = nowpcb._time_need + nowtime;
-		nowtime += nowpcb._time_need;
-		nowpcb.print();
-		std::cout << "  服务开始时间" << nowpcb._time_begin << " 完成时间：" << nowpcb._time_finish << std::endl;
-	}
+	system("pause");
 }
 
 void RR(std::vector<pcb>& pcbs, std::size_t times)
@@ -186,24 +182,24 @@ void RR(std::vector<pcb>& pcbs, std::size_t times)
 	SortPcbsByFcfs(pcbs);
 	size_t  nowtime = 0;
 	std::queue<pcb> pcbQ;
-	pcbQ.push(pcbs[0]);
-	for (size_t i = 1; i < pcbs.size();)
+
+	size_t index = 0;
+	while (1)
 	{
-		if (pcbQ.size() == 0)
+		if (pcbQ.empty() && index >= pcbs.size())
+			break;
+		if (pcbQ.empty())
 		{
-			pcbQ.push(pcbs[i]);
-			i++;
+			pcbQ.push(pcbs[index]);
+			index++;
 		}
 		if (pcbQ.front()._time_come > nowtime)
 			nowtime = pcbQ.front()._time_come;
 
-		if (i<pcbs.size() && pcbs[i]._time_come <= nowtime+1)
+		while (index < pcbs.size() && pcbs[index]._time_come <= nowtime + 1)
 		{
-			while (i < pcbs.size() && pcbs[i]._time_come <= nowtime+1)
-			{
-				pcbQ.push(pcbs[i]);
-				i++;
-			}
+			pcbQ.push(pcbs[index]);
+			index++;
 		}
 
 		//取队头pcb，出队
@@ -227,29 +223,7 @@ void RR(std::vector<pcb>& pcbs, std::size_t times)
 			pcbQ.push(nowpcb);
 		}
 	}
-	while (pcbQ.size())
-	{
-		//取队头pcb，出队
-		pcb nowpcb(pcbQ.front());
-		pcbQ.pop();
-
-		if (nowpcb._time_begin == INT_MAX)
-			nowpcb._time_begin = nowtime;
-
-		if (nowpcb._time_nowneed <= times)
-		{
-			nowpcb._time_finish = nowpcb._time_nowneed + nowtime;
-			nowtime += nowpcb._time_nowneed;
-			nowpcb.print();
-			std::cout <<" 开始时间："<< nowpcb._time_begin<< " 完成时间：" << nowpcb._time_finish << std::endl;
-		}
-		else
-		{
-			nowpcb._time_nowneed -= times;
-			nowtime += times;
-			pcbQ.push(nowpcb);
-		}
-	}
+	system("pause");
 }
 
 
