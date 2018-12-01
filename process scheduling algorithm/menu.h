@@ -23,7 +23,6 @@ int menu_select()
 		std::cout << "\t\tPlease choose(0-4):";
 		std::cin >> i;
 	} while (i < 0 || i>4);
-
 	return i;
 }
 

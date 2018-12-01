@@ -8,15 +8,15 @@
 class pcb
 {
 public:
-	std::string _name;
-	size_t _time_come;
-	size_t _time_nowneed;
-	size_t _time_need;
-	size_t _time_begin;
-	size_t _time_finish;
-	size_t _weight;
-	size_t _time_T;
-	double _time_T_Weight;
+	std::string _name;	//进程名
+	size_t _time_come;	//到达时间
+	size_t _time_nowneed;	//当前还需要的服务时间
+	size_t _time_need;	//总的需要服务时间
+	size_t _time_begin;	//服务开始时间
+	size_t _time_finish;	//完成时间
+	size_t _weight;	//优先级
+	size_t _time_T;	//周转时间
+	double _time_T_Weight;	//带权周转时间
 
 	pcb(std::string name, size_t time_come, size_t time_need,size_t weight = 0)
 	{
@@ -29,7 +29,7 @@ public:
 		_weight = weight;
 	}
 
-	void setweight(size_t weight)
+	void setweight(size_t weight)	//set优先级
 	{
 		_weight = weight;
 	}
@@ -41,15 +41,15 @@ public:
 			std::cout << " 优先权：" << _weight;
 	}
 
-	void SetTTimeAndTTimeWithW()
+	void SetTTimeAndTTimeWithW()	//计算周转时间和带权周转时间
 	{
-		_time_T = _time_finish - _time_begin;
+		_time_T = _time_finish - _time_come;
 		_time_T_Weight = (double)_time_T / (double)_time_need;
 	}
-	friend bool CmpByFcfs(pcb& a, pcb& b);
-	friend bool CmpBySjf(pcb& a, pcb& b);
-	friend bool CmpByPsa(pcb& a, pcb& b);
 
+	friend bool CmpByFcfs(pcb& a, pcb& b);	//用于FCFS排序
+	friend bool CmpBySjf(pcb& a, pcb& b);	//用于SJF排序
+	friend bool CmpByPsa(pcb& a, pcb& b);	//用于PSA排序
 };
 
 void PintfPcbs(std::vector<pcb>& pcbs,int flag = 0)
@@ -86,7 +86,6 @@ void GetPcbs(std::vector<pcb>& pcbs,int flag = 0)
 	size_t time_need;
 	size_t weight;
 	
-
 	std::cout << "请输入模拟算法中进程数量：";
 	std::cin >> num;
 	for (size_t i = 0; i < num; ++i)
@@ -116,7 +115,7 @@ void GetRoundTime(size_t& times)
 	std::cin >> times;
 }
 
-void SortPcbsByFcfs(std::vector<pcb>& pcbs)
+void SortPcbsByFCFS(std::vector<pcb>& pcbs)
 {
 	sort(pcbs.begin(), pcbs.end(), CmpByFcfs);
 }
@@ -127,7 +126,7 @@ void FCFS(std::vector<pcb>& pcbs)
 	size_t nowtime = 0;
 
 	//按照到达时间排序
-	SortPcbsByFcfs(pcbs);
+	SortPcbsByFCFS(pcbs);
 
 	//对finish时间计算
 	for (size_t i = 0; i < pcbs.size(); ++i)
@@ -149,7 +148,7 @@ void FCFS(std::vector<pcb>& pcbs)
 	system("pause");
 }
 
-void SortPcbsBySjf(std::vector<pcb>& pcbs)
+void SortPcbsBySJF(std::vector<pcb>& pcbs)
 {
 	if (pcbs.size() == 0)
 		return;
@@ -161,7 +160,7 @@ void SJF(std::vector<pcb>& pcbs)
 	PintfPcbs(pcbs);
 	size_t nowtime = 0;
 	std::vector<pcb> pcbQ;
-	SortPcbsByFcfs(pcbs);
+	SortPcbsByFCFS(pcbs);
 
 	size_t index = 0;
 	while (1)
@@ -182,9 +181,7 @@ void SJF(std::vector<pcb>& pcbs)
 			pcbQ.push_back(pcbs[index]);
 			index++;
 		}
-		SortPcbsBySjf(pcbQ);
-
-		
+		SortPcbsBySJF(pcbQ);
 
 		//取队头pcb，出队
 		pcb nowpcb(pcbQ[0]);
@@ -199,7 +196,7 @@ void SJF(std::vector<pcb>& pcbs)
 		nowpcb.print();
 		std::cout << " 开始：" << nowpcb._time_begin << " 完成：" << nowpcb._time_finish <<
 			" 周转："<<nowpcb._time_T<<" 带权周转："<<nowpcb._time_T_Weight<< std::endl;
-		SortPcbsBySjf(pcbQ);
+		SortPcbsBySJF(pcbQ);
 	}
 	system("pause");
 }
@@ -207,7 +204,7 @@ void SJF(std::vector<pcb>& pcbs)
 void RR(std::vector<pcb>& pcbs, std::size_t times)
 {
 	PintfPcbs(pcbs);
-	SortPcbsByFcfs(pcbs);
+	SortPcbsByFCFS(pcbs);
 	size_t  nowtime = 0;
 	std::queue<pcb> pcbQ;
 
@@ -269,7 +266,7 @@ void PSA(std::vector<pcb>& pcbs)
 	size_t nowtime = 0;
 	size_t index = 0;
 	std::vector<pcb> pcbQ;
-	SortPcbsByFcfs(pcbs);
+	SortPcbsByFCFS(pcbs);
 
 	while (1)
 	{
