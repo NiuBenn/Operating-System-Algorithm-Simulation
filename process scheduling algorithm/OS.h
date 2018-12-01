@@ -174,6 +174,9 @@ void SJF(std::vector<pcb>& pcbs)
 			index++;
 		}
 
+		if (pcbQ[0]._time_come > nowtime)
+			nowtime = pcbQ[0]._time_come;
+
 		while (index < pcbs.size() && pcbs[index]._time_come <= nowtime)
 		{
 			pcbQ.push_back(pcbs[index]);
@@ -181,8 +184,7 @@ void SJF(std::vector<pcb>& pcbs)
 		}
 		SortPcbsBySjf(pcbQ);
 
-		if (pcbQ[0]._time_come > nowtime)
-			nowtime = pcbQ[0]._time_come;
+		
 
 		//取队头pcb，出队
 		pcb nowpcb(pcbQ[0]);
