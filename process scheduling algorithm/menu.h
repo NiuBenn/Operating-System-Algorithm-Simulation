@@ -50,7 +50,9 @@ void OSAlgorithmSimulation()
 			RR(pcbs, roundtime);
 			break;
 		case 4:
-			GetPcbs(pcbs, 1);
+			GetPcbs(pcbs, 1);	
+			//void GetPcbs(std::vector<pcb>& pcbs,int flag = 0)
+			//第二个参数来判断是否需要输入优先级
 			PSA(pcbs);
 			break;
 		case 0:

@@ -77,7 +77,7 @@ bool CmpByPsa(pcb& a, pcb& b)
 	return a._weight > b._weight;
 }
 
-void GetPcbs(std::vector<pcb>& pcbs,int flag = 0)
+void GetPcbs(std::vector<pcb>& pcbs,int flag = 0)	//用户输入pcb信息，flag来判断是否需要输入优先级
 {
 	system("cls");
 	size_t num;
@@ -115,12 +115,12 @@ void GetRoundTime(size_t& times)
 	std::cin >> times;
 }
 
-void SortPcbsByFCFS(std::vector<pcb>& pcbs)
+void SortPcbsByFCFS(std::vector<pcb>& pcbs)	//按照到达时间排序
 {
 	sort(pcbs.begin(), pcbs.end(), CmpByFcfs);
 }
 
-void FCFS(std::vector<pcb>& pcbs)
+void FCFS(std::vector<pcb>& pcbs)	//先到先服务算法
 {
 	PintfPcbs(pcbs);
 	size_t nowtime = 0;
@@ -148,18 +148,18 @@ void FCFS(std::vector<pcb>& pcbs)
 	system("pause");
 }
 
-void SortPcbsBySJF(std::vector<pcb>& pcbs)
+void SortPcbsBySJF(std::vector<pcb>& pcbs)	//按照作业长短排序
 {
 	if (pcbs.size() == 0)
 		return;
 	sort(pcbs.begin(), pcbs.end(), CmpBySjf);
 }
 
-void SJF(std::vector<pcb>& pcbs)
+void SJF(std::vector<pcb>& pcbs)	//短作业优先算法
 {
 	PintfPcbs(pcbs);
 	size_t nowtime = 0;
-	std::vector<pcb> pcbQ;
+	std::vector<pcb> pcbQ;	//定义就绪队列pcbQ 
 	SortPcbsByFCFS(pcbs);
 
 	size_t index = 0;
@@ -173,7 +173,7 @@ void SJF(std::vector<pcb>& pcbs)
 			index++;
 		}
 
-		if (pcbQ[0]._time_come > nowtime)
+		if (pcbQ[0]._time_come > nowtime)	//判断空档期
 			nowtime = pcbQ[0]._time_come;
 
 		while (index < pcbs.size() && pcbs[index]._time_come <= nowtime)
@@ -181,9 +181,10 @@ void SJF(std::vector<pcb>& pcbs)
 			pcbQ.push_back(pcbs[index]);
 			index++;
 		}
-		SortPcbsBySJF(pcbQ);
+		SortPcbsBySJF(pcbQ);	//按照作业长短排序
 
 		//取队头pcb，出队
+		//由于使用的是vector，所以不支持push_front，所以用back替换front，然后pop_back
 		pcb nowpcb(pcbQ[0]);
 		pcbQ[0] = pcbQ[pcbQ.size() - 1];
 		pcbQ.pop_back();
@@ -192,22 +193,23 @@ void SJF(std::vector<pcb>& pcbs)
 		nowpcb._time_begin = nowtime;
 		nowpcb._time_finish = nowpcb._time_need + nowtime;
 		nowtime += nowpcb._time_need;
-		nowpcb.SetTTimeAndTTimeWithW();
+		nowpcb.SetTTimeAndTTimeWithW();	//计算周转时间以及平均周转时间
 		nowpcb.print();
 		std::cout << " 开始：" << nowpcb._time_begin << " 完成：" << nowpcb._time_finish <<
 			" 周转："<<nowpcb._time_T<<" 带权周转："<<nowpcb._time_T_Weight<< std::endl;
-		SortPcbsBySJF(pcbQ);
+		SortPcbsBySJF(pcbQ);	//由于上面出队打乱了顺序，所以再次排序
 	}
 	system("pause");
 }
 
-void RR(std::vector<pcb>& pcbs, std::size_t times)
+void RR(std::vector<pcb>& pcbs, std::size_t times)	//时间片轮转算法
 {
 	PintfPcbs(pcbs);
 	SortPcbsByFCFS(pcbs);
 	size_t  nowtime = 0;
-	std::queue<pcb> pcbQ;
-
+	std::queue<pcb> pcbQ;	//定义就绪队列pcbQ
+	pcb tmp(pcbs[0]);
+	int flag = 1;
 	size_t index = 0;
 	while (1)
 	{
@@ -218,15 +220,21 @@ void RR(std::vector<pcb>& pcbs, std::size_t times)
 			pcbQ.push(pcbs[index]);
 			index++;
 		}
-		if (pcbQ.front()._time_come > nowtime)
+
+		if (pcbQ.front()._time_come > nowtime)	//判断空档期
 			nowtime = pcbQ.front()._time_come;
 
-		while (index < pcbs.size() && pcbs[index]._time_come <= nowtime + 1)
+		while (index < pcbs.size() && pcbs[index]._time_come <= nowtime)
 		{
 			pcbQ.push(pcbs[index]);
 			index++;
 		}
 
+		if (flag == 0)
+		{
+			pcbQ.push(tmp);
+			flag = 1;
+		}
 		//取队头pcb，出队
 		pcb nowpcb(pcbQ.front());
 		pcbQ.pop();
@@ -234,7 +242,7 @@ void RR(std::vector<pcb>& pcbs, std::size_t times)
 		if (nowpcb._time_begin == INT_MAX)
 			nowpcb._time_begin = nowtime;
 
-		if (nowpcb._time_nowneed <= times)
+		if (nowpcb._time_nowneed <= times)	//判断当前时间片是否可完成
 		{
 			nowpcb._time_finish = nowpcb._time_nowneed + nowtime;
 			nowtime += nowpcb._time_nowneed;
@@ -247,20 +255,22 @@ void RR(std::vector<pcb>& pcbs, std::size_t times)
 		{
 			nowpcb._time_nowneed -= times;
 			nowtime += times;
-			pcbQ.push(nowpcb);
+			//pcbQ.push(nowpcb);
+			tmp = nowpcb;
+			flag = 0;
 		}
 	}
 	system("pause");
 }
 
-void SortPcbsByPSA(std::vector<pcb>& pcbs)
+void SortPcbsByPSA(std::vector<pcb>& pcbs)	//按照优先级排序
 {
 	if (pcbs.size() == 0)
 		return;
 	sort(pcbs.begin(), pcbs.end(), CmpByPsa);
 }
 
-void PSA(std::vector<pcb>& pcbs)
+void PSA(std::vector<pcb>& pcbs)	//优先级调度算法
 {
 	PintfPcbs(pcbs, 1);
 	size_t nowtime = 0;
@@ -283,15 +293,15 @@ void PSA(std::vector<pcb>& pcbs)
 			pcbQ.push_back(pcbs[index]);
 			index++;
 		}
-		SortPcbsByPSA(pcbQ);
+		SortPcbsByPSA(pcbQ);	//按照优先级排序
 
-		if (pcbQ.front()._time_come > nowtime)
+		if (pcbQ.front()._time_come > nowtime)	//判断空档期
 			nowtime = pcbQ.front()._time_come;
 
 		if (pcbQ.front()._time_begin == INT_MAX)
 			pcbQ.front()._time_begin = nowtime;
 
-		if (pcbQ.front()._time_nowneed == 1)
+		if (pcbQ.front()._time_nowneed == 1)	//判断是否完成
 		{
 			pcbQ.front()._time_nowneed = 0;
 			pcbQ.front()._time_finish = nowtime + 1;
