@@ -1,10 +1,12 @@
 #define _CRT_SECURE_NO_WARNINGS 1
-#include"Memory.h"
+#include"menu.h"
+
+
 
 int main()
 {
 
-	FistFit();
+	MemoryFit();
 	system("pause");
 	return 0;
 }
