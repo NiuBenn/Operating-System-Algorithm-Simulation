@@ -56,21 +56,11 @@ void InitMB(std::list<MemoryBlock> &MB)
 	system("pause");
 }
 
-//void GetMBS(std::list<MemoryBlock> &MB)
-//{
-//	system("cls");
-//	size_t size = 0;
-//	std::cout << "请输入初始内存块数量：";
-//	std::cin >> size;
-//	for (size_t i = 0; i < size; ++i)
-//	{
-//		std::cout<<"请输入内存块大小"
-//	}
-//	MemoryBlock NewMB(size);
-//	MB.push_back(NewMB);
-//	std::cout << "内存初始化成功!!" << std::endl;
-//	system("pause");
-//}
+void InitSize(size_t &size)
+{
+	std::cout << "请输入参数G的大小：";
+	std::cin >> size;
+}
 
 void MBPrintf(std::list<MemoryBlock> &MB)
 {
@@ -115,7 +105,22 @@ void SortMBByFF(std::list<MemoryBlock> &MB)
 	MB.sort(CmpByFF);
 }
 
-void MallocMBByFF(std::list<MemoryBlock> &FreeMB, std::list<MemoryBlock>& UsedMB)
+std::list<MemoryBlock>::iterator FindIterator(std::list<MemoryBlock> &FreeMB, MemoryBlock &MB)
+{
+	std::list<MemoryBlock>::iterator result;
+	std::list<MemoryBlock>::iterator it = FreeMB.begin();
+	for (; it != FreeMB.end(); ++it)
+	{
+		if (*it == MB)
+		{
+			result = it;
+			return result;
+		}
+	}
+	return result;
+}
+
+void MallocMBByFF(std::list<MemoryBlock> &FreeMB, std::list<MemoryBlock>& UsedMB, size_t size_g)
 {
 	size_t size;
 	std::cout << "\n请输入你要申请分配的内存块大小：";
@@ -133,7 +138,7 @@ void MallocMBByFF(std::list<MemoryBlock> &FreeMB, std::list<MemoryBlock>& UsedMB
 		if ((*it)._length >= size)
 		{
 			std::cout << std::endl << "内存分配成功,分配的内存块如下：" << std::endl;
-			if ((*it)._length > size)
+			if ((*it)._length > size + size_g)
 			{
 				MemoryBlock NewMB(size, (*it)._start);
 				(*it)._start += size;
@@ -202,53 +207,7 @@ void FreeMBByFF(std::list<MemoryBlock> &FreeMB, std::list<MemoryBlock> &UsedMB)
 
 }
 
-void FistFit()
-{
-	std::list<MemoryBlock> FreeMB;
-	std::list<MemoryBlock> UsedMB;
-	InitMB(FreeMB);
-
-	char c = 0;
-	size_t MBLenth = 0;
-	while (1)
-	{
-		system("cls");
-		PrintMBAndHelp(FreeMB, UsedMB);
-
-		std::cin >> c;
-		switch (c)
-		{
-		case '1':
-			MallocMBByFF(FreeMB, UsedMB);
-			break;
-		case '2':
-			FreeMBByFF(FreeMB, UsedMB);
-			break;
-		case 'q':
-			goto FFend;
-		}
-	}
-FFend:
-	return;
-}
-
-std::list<MemoryBlock>::iterator FindIterator(std::list<MemoryBlock> &FreeMB, MemoryBlock &MB)
-{
-	std::list<MemoryBlock>::iterator result;
-	std::list<MemoryBlock>::iterator it = FreeMB.begin();
-	for (; it != FreeMB.end(); ++it)
-	{
-		if (*it == MB)
-		{
-			result = it;
-			return result;
-		}
-	}
-	return result;
-}
-
-void MallocMBByNF(std::list<MemoryBlock> &FreeMB, std::list<MemoryBlock>& UsedMB,
-	std::list<MemoryBlock>::iterator& Nowit)
+void MallocMBByNF(std::list<MemoryBlock> &FreeMB, std::list<MemoryBlock>& UsedMB,std::list<MemoryBlock>::iterator& Nowit, size_t size_g)
 {
 	if (FreeMB.size() == 0)
 	{
@@ -282,7 +241,7 @@ void MallocMBByNF(std::list<MemoryBlock> &FreeMB, std::list<MemoryBlock>& UsedMB
 		if ((*it)._length >= size)
 		{
 			std::cout << std::endl << "内存分配成功,分配的内存块如下：" << std::endl;
-			if ((*it)._length > size)
+			if ((*it)._length > size + size_g)
 			{
 				MemoryBlock NewMB(size, (*it)._start);
 				(*it)._start += size;
@@ -319,8 +278,7 @@ void MallocMBByNF(std::list<MemoryBlock> &FreeMB, std::list<MemoryBlock>& UsedMB
 	return;
 }
 
-void FreeMBByNF(std::list<MemoryBlock> &FreeMB, std::list<MemoryBlock> &UsedMB,
-	std::list<MemoryBlock>::iterator& Nowit)
+void FreeMBByNF(std::list<MemoryBlock> &FreeMB, std::list<MemoryBlock> &UsedMB,std::list<MemoryBlock>::iterator& Nowit)
 {
 	size_t ID;
 	std::cout << "请输入你要回收的内存编号：";
@@ -370,48 +328,7 @@ void FreeMBByNF(std::list<MemoryBlock> &FreeMB, std::list<MemoryBlock> &UsedMB,
 	system("pause");
 }
 
-void NextFit()
-{
-	std::list<MemoryBlock> FreeMB;
-	std::list<MemoryBlock> UsedMB;
-	InitMB(FreeMB);
-
-	std::list<MemoryBlock>::iterator Nowit = FreeMB.begin();
-
-	char c = 0;
-	size_t MBLenth = 0;
-	while (1)
-	{
-		system("cls");
-		std::cout << "下次开始查找的内存块为：" << std::endl;
-		if (Nowit != FreeMB.end())
-		{
-			(*Nowit).Print();
-		}
-		else
-		{
-			std::cout << "为空！" << std::endl;
-		}
-		PrintMBAndHelp(FreeMB, UsedMB);
-		std::cin >> c;
-		switch (c)
-		{
-		case '1':
-			MallocMBByNF(FreeMB, UsedMB, Nowit);
-			break;
-		case '2':
-			FreeMBByNF(FreeMB, UsedMB,Nowit);
-			break;
-		case 'q':
-			goto NFend;
-		}
-
-	}
-NFend:
-	return;
-}
-
-void MallocMBByBF(std::list<MemoryBlock> &FreeMB, std::list<MemoryBlock>& UsedMB)
+void MallocMBByBF(std::list<MemoryBlock> &FreeMB, std::list<MemoryBlock>& UsedMB, size_t size_g)
 {
 	size_t size;
 	std::cout << std::endl << "请输入你要申请分配的内存块大小：";
@@ -439,7 +356,7 @@ void MallocMBByBF(std::list<MemoryBlock> &FreeMB, std::list<MemoryBlock>& UsedMB
 	if (nowsize != INT_MAX)
 	{
 		std::cout << std::endl << "内存分配成功,分配的内存块如下：" << std::endl;
-		if ((*Best)._length > size)
+		if ((*Best)._length > size + size_g)
 		{
 			MemoryBlock NewMB(size, (*Best)._start);
 			(*Best)._start += size;
@@ -464,38 +381,7 @@ void MallocMBByBF(std::list<MemoryBlock> &FreeMB, std::list<MemoryBlock>& UsedMB
 	return;
 }
 
-void BestFit()
-{
-	std::list<MemoryBlock> FreeMB;
-	std::list<MemoryBlock> UsedMB;
-	InitMB(FreeMB);
-
-	char c = 0;
-	size_t MBLenth = 0;
-	while (1)
-	{
-		system("cls");
-		PrintMBAndHelp(FreeMB, UsedMB);
-
-		std::cin >> c;
-		switch (c)
-		{
-		case '1':
-			MallocMBByBF(FreeMB, UsedMB);
-			break;
-		case '2':
-			FreeMBByFF(FreeMB, UsedMB);
-			break;
-		case 'q':
-			goto NFend;
-		}
-
-	}
-NFend:
-	return;
-}
-
-void MallocMBByWF(std::list<MemoryBlock> &FreeMB, std::list<MemoryBlock>& UsedMB)
+void MallocMBByWF(std::list<MemoryBlock> &FreeMB, std::list<MemoryBlock>& UsedMB, size_t size_g)
 {
 	size_t size;
 	std::cout << std::endl << "请输入你要申请分配的内存块大小：";
@@ -523,7 +409,7 @@ void MallocMBByWF(std::list<MemoryBlock> &FreeMB, std::list<MemoryBlock>& UsedMB
 	if (nowsize != 0)
 	{
 		std::cout << std::endl << "内存分配成功,分配的内存块如下：" << std::endl;
-		if ((*Best)._length > size)
+		if ((*Best)._length > size + size_g)
 		{
 			MemoryBlock NewMB(size, (*Best)._start);
 			(*Best)._start += size;
@@ -548,11 +434,14 @@ void MallocMBByWF(std::list<MemoryBlock> &FreeMB, std::list<MemoryBlock>& UsedMB
 	return;
 }
 
-void WorstFit()
+void FistFit()
 {
 	std::list<MemoryBlock> FreeMB;
 	std::list<MemoryBlock> UsedMB;
+	size_t size;
 	InitMB(FreeMB);
+	InitSize(size);
+
 
 	char c = 0;
 	size_t MBLenth = 0;
@@ -560,12 +449,123 @@ void WorstFit()
 	{
 		system("cls");
 		PrintMBAndHelp(FreeMB, UsedMB);
+		std::cout << "参数G为：" << size << std::endl;
+		std::cin >> c;
+		switch (c)
+		{
+		case '1':
+			MallocMBByFF(FreeMB, UsedMB, size);
+			break;
+		case '2':
+			FreeMBByFF(FreeMB, UsedMB);
+			break;
+		case 'q':
+			goto FFend;
+		}
+	}
+FFend:
+	return;
+}
+
+void NextFit()
+{
+	std::list<MemoryBlock> FreeMB;
+	std::list<MemoryBlock> UsedMB;
+	size_t size;
+	InitMB(FreeMB);
+	InitSize(size);
+
+	std::list<MemoryBlock>::iterator Nowit = FreeMB.begin();
+
+	char c = 0;
+	size_t MBLenth = 0;
+	while (1)
+	{
+		system("cls");
+		std::cout << "下次开始查找的内存块为：" << std::endl;
+		if (Nowit != FreeMB.end())
+		{
+			(*Nowit).Print();
+		}
+		else
+		{
+			std::cout << "为空！" << std::endl;
+		}
+		PrintMBAndHelp(FreeMB, UsedMB);
+		std::cout << "参数G为：" << size << std::endl;
+		std::cin >> c;
+		switch (c)
+		{
+		case '1':
+			MallocMBByNF(FreeMB, UsedMB, Nowit, size);
+			break;
+		case '2':
+			FreeMBByNF(FreeMB, UsedMB, Nowit);
+			break;
+		case 'q':
+			goto NFend;
+		}
+
+	}
+NFend:
+	return;
+}
+
+void BestFit()
+{
+	std::list<MemoryBlock> FreeMB;
+	std::list<MemoryBlock> UsedMB;
+	size_t size;
+	InitMB(FreeMB);
+	InitSize(size);
+
+	char c = 0;
+	size_t MBLenth = 0;
+	while (1)
+	{
+		system("cls");
+		PrintMBAndHelp(FreeMB, UsedMB);
+		std::cout << "参数G为：" << size << std::endl;
 
 		std::cin >> c;
 		switch (c)
 		{
 		case '1':
-			MallocMBByWF(FreeMB, UsedMB);
+			MallocMBByBF(FreeMB, UsedMB, size);
+			break;
+		case '2':
+			FreeMBByFF(FreeMB, UsedMB);
+			break;
+		case 'q':
+			goto NFend;
+		}
+
+	}
+NFend:
+	return;
+}
+
+void WorstFit()
+{
+	std::list<MemoryBlock> FreeMB;
+	std::list<MemoryBlock> UsedMB;
+	size_t size;
+	InitMB(FreeMB);
+	InitSize(size);
+
+	char c = 0;
+	size_t MBLenth = 0;
+	while (1)
+	{
+		system("cls");
+		PrintMBAndHelp(FreeMB, UsedMB);
+		std::cout << "参数G为：" << size << std::endl;
+
+		std::cin >> c;
+		switch (c)
+		{
+		case '1':
+			MallocMBByWF(FreeMB, UsedMB, size);
 			break;
 		case '2':
 			FreeMBByFF(FreeMB, UsedMB);
