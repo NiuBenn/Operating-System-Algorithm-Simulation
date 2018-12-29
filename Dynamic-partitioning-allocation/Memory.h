@@ -442,7 +442,6 @@ void FistFit()
 	InitMB(FreeMB);
 	InitSize(size);
 
-
 	char c = 0;
 	size_t MBLenth = 0;
 	while (1)
@@ -505,7 +504,6 @@ void NextFit()
 		case 'q':
 			goto NFend;
 		}
-
 	}
 NFend:
 	return;
@@ -537,11 +535,10 @@ void BestFit()
 			FreeMBByFF(FreeMB, UsedMB);
 			break;
 		case 'q':
-			goto NFend;
+			goto BFend;
 		}
-
 	}
-NFend:
+BFend:
 	return;
 }
 
@@ -571,11 +568,10 @@ void WorstFit()
 			FreeMBByFF(FreeMB, UsedMB);
 			break;
 		case 'q':
-			goto NFend;
+			goto WFend;
 		}
-
 	}
-NFend:
+WFend:
 	return;
 }
 
