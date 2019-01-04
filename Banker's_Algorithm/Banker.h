@@ -2,6 +2,7 @@
 #include<iostream>
 #include<stdlib.h>
 #include<vector>
+#include<map>
 
 class Resources
 {
@@ -17,6 +18,8 @@ public:
 	size_t _ResourcesNum;
 
 };
+
+bool IsSafety(Resources& R);
 
 void Init(Resources& R)
 {
@@ -73,8 +76,27 @@ void Init(Resources& R)
 	}
 	std::cout << "————————————————————————————————" << std::endl;
 	std::cout << "初始化成功！！" << std::endl;
-
+	std::cout << "即将进行安全性序列检测！！" << std::endl;
 	system("pause");
+
+	for (size_t i = 0; i < R._ResourcesNum; ++i)
+	{
+		R._Work[i] = R._Available[i];
+	}
+	bool safe = IsSafety(R);
+
+	if (safe)
+	{
+		std::cout << "目前系统资源状态安全！";
+		system("pause");
+	}
+	else
+	{
+		std::cout << "目前资源状态不安全，资源初始化失败！" << std::endl;
+		std::cout << "请返回主菜单重新进行初始化!!";
+		system("pause");
+	}
+
 }
 
 void PrintResources(Resources& R)
@@ -118,7 +140,7 @@ bool IsSafety(Resources& R)
 
 	size_t FinshNum = 0;
 	int flag = 1;
-	printf("       Work      Need      Alloc    W+A     Finish\n");
+	printf("       Work       Need        Alloc       W+A       Finish\n");
 	while (flag)
 	{
 		flag = 0;

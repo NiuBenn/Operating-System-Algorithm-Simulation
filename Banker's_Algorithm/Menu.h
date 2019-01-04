@@ -16,7 +16,7 @@ int menu_select()
 		std::cout << "\t\t│                                │\n";
 		std::cout << "\t\t│     3. 银行家算法进行资源分配  │\n";
 		std::cout << "\t\t│                                │\n";
-		std::cout << "\t\t│     0. 退出系统                  │\n";
+		std::cout << "\t\t│     0. 退出系统                │\n";
 		std::cout << "\t\t└————————————————┘\n";
 		std::cout << "\t\tPlease choose(0-3):";
 		std::cin >> i;
